@@ -7,7 +7,7 @@ import LikhAIEditor from '../components/LikhAIEditor';
 import CommentSidebar from '../components/CommentSidebar';
 import AIAnalysisSidebar from '../components/AIAnalysisSidebar';
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://likhai.onrender.com';
 
 const Editor = () => {
   const { id } = useParams();

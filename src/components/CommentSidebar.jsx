@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XIcon, ChatAlt2Icon } from '@heroicons/react/outline';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://likhai.onrender.com';
 
 const CommentSidebar = ({ isOpen, onClose, documentId }) => {
   const [comments, setComments] = useState([]);

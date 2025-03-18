@@ -5,7 +5,7 @@ import { UserAddIcon, UserGroupIcon } from '@heroicons/react/outline';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://likhai.onrender.com';
 
 const ProjectDetails = () => {
   const { id } = useParams();

@@ -6,7 +6,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { TrashIcon, DotsVerticalIcon } from '@heroicons/react/outline';
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://likhai.onrender.com';
 
 const STATUS_COLORS = {
   todo: 'bg-yellow-400',
