@@ -6,7 +6,7 @@ config();
 const resetDatabase = async () => {
     try {
         // Connect to MongoDB
-        await mongoose.connect('mongodb://localhost:27017/synapse');
+        await mongoose.connect(process.env.MONGODB_URL);
         
         // Drop all collections
         const collections = await mongoose.connection.db.collections();
