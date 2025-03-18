@@ -476,7 +476,7 @@ const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document
       {/* Main Content Area */}
       <div className="flex-1 relative">
         <Editor
-          apiKey="7vj7c0b02q2julz14v9fmkczjr35s173ri4p8zz8tz12weom"
+          apiKey="uv7z0tko5e9saum2oyubnyt3ywn8qux5rbkwamaa747m05f4"
           onInit={(evt, editor) => editorRef.current = editor}
           initialValue={initialContent}
           value={content}
