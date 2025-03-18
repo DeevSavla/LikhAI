@@ -30,28 +30,28 @@ app.use(express.urlencoded({ extended: false }));
 
 const port = process.env.PORT
 
-app.post('/api/v1/signup', signupController)
-app.post('/api/v1/login-with-otp', loginOtpController);
-app.post('/api/v1/login-with-password', loginPasswordController)
-app.post('/api/v1/verify-otp', verifyOtpController)
+app.post('/signup', signupController)
+app.post('/login-with-otp', loginOtpController);
+app.post('/login-with-password', loginPasswordController)
+app.post('/verify-otp', verifyOtpController)
 
 // Project routes
-app.post("/api/v1/create-project", createProject);
-app.post("/api/v1/fetch-projects", fetchProjects);
-app.post("/api/v1/add-collaborator", addCollaborator);
-app.post("/api/v1/remove-collaborator", removeCollaborator);
-app.post("/api/v1/update-project", updateProject);
-app.post("/api/v1/delete-project", deleteProject);
+app.post("/create-project", createProject);
+app.post("/fetch-projects", fetchProjects);
+app.post("/add-collaborator", addCollaborator);
+app.post("/remove-collaborator", removeCollaborator);
+app.post("/update-project", updateProject);
+app.post("/delete-project", deleteProject);
 
 // Document routes
-app.post('/api/v1/create-document', createDocument);
-app.post('/api/v1/get-document', getDocument);
-app.post('/api/v1/update-document', updateDocument);
-app.post('/api/v1/get-user-documents', getUserDocuments);
-app.post('/api/v1/add-comment', addComment);
-app.post('/api/v1/get-comments', getComments);
-app.post('/api/v1/get-document-versions', getDocumentVersions);
-app.post('/api/v1/restore-version', restoreVersion);
+app.post('/create-document', createDocument);
+app.post('/get-document', getDocument);
+app.post('/update-document', updateDocument);
+app.post('/get-user-documents', getUserDocuments);
+app.post('/add-comment', addComment);
+app.post('/get-comments', getComments);
+app.post('/get-document-versions', getDocumentVersions);
+app.post('/restore-version', restoreVersion);
 
 server.listen(port, () => {
     console.log(`Server running in port ${port}.`)
