@@ -21,7 +21,7 @@ setupWebSocket(server)
 
 app.use(express.json())
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173','https://2fsnqvm4-8000.inc1.devtunnels.ms','https://hackniche-extra-endpoints.onrender.com','*','https://likhai.onrender.com'],
+  origin: ['http://localhost:3000','https://likh-ai.vercel.app', 'http://localhost:5173','https://2fsnqvm4-8000.inc1.devtunnels.ms','https://hackniche-extra-endpoints.onrender.com','*','https://likhai.onrender.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
