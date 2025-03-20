@@ -6,8 +6,7 @@ import Navbar from '../components/Navbar';
 import LikhAIEditor from '../components/LikhAIEditor';
 import CommentSidebar from '../components/CommentSidebar';
 import AIAnalysisSidebar from '../components/AIAnalysisSidebar';
-
-const API_BASE_URL = 'https://likhai.onrender.com';
+import { baseUrl } from '../utils/baseUrl';
 
 const Editor = () => {
   const { id } = useParams();
@@ -48,7 +47,7 @@ const Editor = () => {
           throw new Error('No authentication token found');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/get-document`, {
+        const response = await axios.post(`${baseUrl}/get-document`, {
           token,
           documentId: id
         });
@@ -81,7 +80,7 @@ const Editor = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/get-document-versions`, {
+      const response = await axios.post(`${baseUrl}/get-document-versions`, {
         token,
         documentId: id
       });
@@ -116,7 +115,7 @@ const Editor = () => {
           throw new Error('No project selected');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/create-document`, {
+        const response = await axios.post(`${baseUrl}/create-document`, {
           token,
           title: document.title,
           content: editorContent || '',
@@ -127,7 +126,7 @@ const Editor = () => {
           navigate(`/editor/${response.data.document._id}`);
         }
       } else {
-        const response = await axios.post(`${API_BASE_URL}/update-document`, {
+        const response = await axios.post(`${baseUrl}/update-document`, {
           token,
           documentId: id,
           title: document.title,
@@ -162,7 +161,7 @@ const Editor = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/restore-version`, {
+      const response = await axios.post(`${baseUrl}/restore-version`, {
         token,
         documentId: id,
         versionNumber

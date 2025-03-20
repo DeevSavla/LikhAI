@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-
+import { baseUrl } from '../utils/baseUrl';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

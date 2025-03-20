@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { XIcon, ChartBarIcon, UserGroupIcon, EmojiHappyIcon, DocumentTextIcon } from '@heroicons/react/outline';
 
-const AI_API_BASE_URL = 'https://2fsnqvm4-8000.inc1.devtunnels.ms';
-// const AI_API_BASE_URL = 'https://hackniche-extra-endpoints.onrender.com';
+//const AI_API_BASE_URL = 'https://2fsnqvm4-8000.inc1.devtunnels.ms';
+const AI_API_BASE_URL = 'https://hackniche-extra-endpoints.onrender.com';
 
 const AIAnalysisSidebar = ({ isOpen, onClose, documentContent }) => {
   const [loading, setLoading] = useState(false);

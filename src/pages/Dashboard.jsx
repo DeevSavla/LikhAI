@@ -5,8 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { TrashIcon, DotsVerticalIcon } from '@heroicons/react/outline';
-
-const API_BASE_URL = 'https://likhai.onrender.com';
+import { baseUrl } from '../utils/baseUrl';
 
 const STATUS_COLORS = {
   todo: 'bg-yellow-400',
@@ -51,7 +50,7 @@ const Dashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/fetch-projects`, { token });
+      const response = await axios.post(`${baseUrl}/fetch-projects`, { token });
       setProjects(response.data.projects || []);
     } catch (error) {
       console.error('Error fetching projects:', error);

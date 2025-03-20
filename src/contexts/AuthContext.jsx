@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { baseUrl } from '../utils/baseUrl';
 
-const API_BASE_URL = 'https://likhai.onrender.com';
 const AuthContext = createContext();
 
 export function useAuth() {
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       if (!validateEmail(formData.email)) {
         throw new Error('Invalid email format');
       }
-      const response = await axios.post(`${API_BASE_URL}/signup`, formData);
+      const response = await axios.post(`${baseUrl}/signup`, formData);
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userEmail', formData.email);
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
       if (!validateEmail(email)) {
         throw new Error('Invalid email format');
       }
-      const response = await axios.post(`${API_BASE_URL}/login-with-password`, {
+      const response = await axios.post(`${baseUrl}/login-with-password`, {
         email,
         password
       });
@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
       if (!validateEmail(email)) {
         throw new Error('Invalid email format');
       }
-      const response = await axios.post(`${API_BASE_URL}/login-with-otp`, { email });
+      const response = await axios.post(`${baseUrl}/login-with-otp`, { email });
       if (response.data.success) {
         localStorage.setItem('tempEmail', email);
         return response.data;
@@ -91,7 +91,7 @@ export function AuthProvider({ children }) {
       if (!email) {
         throw new Error('No email found for OTP verification');
       }
-      const response = await axios.post(`${API_BASE_URL}/verify-otp`, {
+      const response = await axios.post(`${baseUrl}/verify-otp`, {
         email,
         otp
       });

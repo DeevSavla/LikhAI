@@ -5,8 +5,7 @@ import { SaveIcon, DocumentTextIcon, UserGroupIcon, DownloadIcon, MicrophoneIcon
 import { debounce } from "lodash";
 import AIHelperSidebar from "./AIHelperSidebar";
 
-const WS_BASE_URL = 'ws://localhost:5000';
-const API_BASE_URL = 'https://likhai.onrender.com';
+const WS_BASE_URL = 'https://hackniche-extra-endpoints.onrender.com';
 const PLAGIARISM_API_URL = 'https://api.copyleaks.com/v3/education/scan';
 
 const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document", initialContent = "", isSaving, documentId, autoSave = false }) => {
