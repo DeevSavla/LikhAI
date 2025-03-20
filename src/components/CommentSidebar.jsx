@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XIcon, ChatAlt2Icon } from '@heroicons/react/outline';
 import axios from 'axios';
-
-const API_BASE_URL = 'https://likhai.onrender.com';
+import { baseUrl } from '../utils/baseUrl';
 
 const CommentSidebar = ({ isOpen, onClose, documentId }) => {
   const [comments, setComments] = useState([]);
@@ -22,7 +21,7 @@ const CommentSidebar = ({ isOpen, onClose, documentId }) => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No authentication token found');
 
-      const response = await axios.post(`${API_BASE_URL}/get-comments`, {
+      const response = await axios.post(`${baseUrl}/get-comments`, {
         token,
         documentId
       });
@@ -46,7 +45,7 @@ const CommentSidebar = ({ isOpen, onClose, documentId }) => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No authentication token found');
 
-      const response = await axios.post(`${API_BASE_URL}/add-comment`, {
+      const response = await axios.post(`${baseUrl}/add-comment`, {
         token,
         documentId,
         text: newComment.trim()

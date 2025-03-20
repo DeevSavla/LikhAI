@@ -71,7 +71,7 @@ const Dashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/create-project`, {
+      const response = await axios.post(`${baseUrl}/create-project`, {
         token,
         title: 'Untitled Project',
         description: '',
@@ -98,7 +98,7 @@ const Dashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/update-project`, {
+      const response = await axios.post(`${baseUrl}/update-project`, {
         token,
         projectId,
         status: newStatus
@@ -131,7 +131,7 @@ const Dashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/delete-project`, {
+      const response = await axios.post(`${baseUrl}/delete-project`, {
         token,
         projectId
       });

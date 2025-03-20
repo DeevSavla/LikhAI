@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { UserAddIcon, UserGroupIcon } from '@heroicons/react/outline';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import { baseUrl } from '../utils/baseUrl';
 
-const API_BASE_URL = 'https://likhai.onrender.com';
+
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -29,7 +30,7 @@ const ProjectDetails = () => {
         }
 
         // Fetch project details
-        const projectResponse = await axios.post(`${API_BASE_URL}/fetch-projects`, { token });
+        const projectResponse = await axios.post(`${baseUrl}/fetch-projects`, { token });
         const foundProject = projectResponse.data.projects.find(p => p._id === id);
         if (!foundProject) {
           throw new Error('Project not found');
@@ -37,7 +38,7 @@ const ProjectDetails = () => {
         setProject(foundProject);
 
         // Fetch documents for this project
-        const documentsResponse = await axios.post(`${API_BASE_URL}/get-user-documents`, { token });
+        const documentsResponse = await axios.post(`${baseUrl}/get-user-documents`, { token });
         const projectDocuments = documentsResponse.data.documents.filter(doc => doc.projectId === id);
         setDocuments(projectDocuments);
       } catch (error) {
@@ -58,7 +59,7 @@ const ProjectDetails = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/create-document`, {
+      const response = await axios.post(`${baseUrl}/create-document`, {
         token,
         title: 'Untitled Document',
         content: '',
@@ -82,7 +83,7 @@ const ProjectDetails = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/add-collaborator`, {
+      const response = await axios.post(`${baseUrl}/add-collaborator`, {
         token,
         projectId: id,
         collaboratorEmail,
@@ -110,7 +111,7 @@ const ProjectDetails = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/remove-collaborator`, {
+      const response = await axios.post(`${baseUrl}/remove-collaborator`, {
         token,
         projectId: id,
         collaboratorEmail: email
@@ -135,7 +136,7 @@ const ProjectDetails = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/update-project`, {
+      const response = await axios.post(`${baseUrl}/update-project`, {
         token,
         projectId: id,
         name: editedTitle

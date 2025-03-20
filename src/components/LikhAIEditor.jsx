@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { SaveIcon, DocumentTextIcon, UserGroupIcon, DownloadIcon, MicrophoneIcon, VolumeUpIcon, StopIcon, ShieldCheckIcon, ExclamationIcon, BeakerIcon } from "@heroicons/react/outline";
 import { debounce } from "lodash";
 import AIHelperSidebar from "./AIHelperSidebar";
+import axios from "axios";
 
 const WS_BASE_URL = 'https://hackniche-extra-endpoints.onrender.com';
-const PLAGIARISM_API_URL = 'https://api.copyleaks.com/v3/education/scan';
 
 const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document", initialContent = "", isSaving, documentId, autoSave = false }) => {
   const editorRef = useRef(null);
@@ -299,101 +299,65 @@ const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document
     return scenes;
   };
 
-  // Add new function for text similarity check
-  const calculateSimilarity = (text1, text2) => {
-    const words1 = text1.toLowerCase().split(/\W+/);
-    const words2 = text2.toLowerCase().split(/\W+/);
-    const set1 = new Set(words1);
-    const set2 = new Set(words2);
-    const intersection = new Set([...set1].filter(x => set2.has(x)));
-    const union = new Set([...set1, ...set2]);
-    return (intersection.size / union.size) * 100;
+  const pollForResults = async (scanId, accessToken) => {
+    const maxAttempts = 10;
+    const delayMs = 2000;
+
+    for (let i = 0; i < maxAttempts; i++) {
+      const response = await axios.get(
+        `https://api.copyleaks.com/v3/education/scan/${scanId}/result`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+
+      if (response.data.length) {
+        return response.data[0];
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+
+    throw new Error('Plagiarism check timeout');
   };
 
   // Update the checkPlagiarism function
   const checkPlagiarism = async (sceneContent) => {
     setIsPlagiarismChecking(true);
+
     try {
-      // Split the content into smaller chunks for comparison
-      const chunks = sceneContent.split(/[.!?]+/).filter(chunk => chunk.trim().length > 20);
-      
-      // Simulate plagiarism check by comparing with some sample texts
-      // In a real application, you would compare with a database of texts or use an API
-      const sampleTexts = [
-        "The quick brown fox jumps over the lazy dog.",
-        "To be or not to be, that is the question.",
-        "It was the best of times, it was the worst of times.",
-        // Add more sample texts as needed
-      ];
+      const tokenResponse = await axios.post('https://api.copyleaks.com/v3/account/login/api', {
+        email: '',
+        key: ''
+      });
+      const { access_token } = tokenResponse.data;
 
-      let maxSimilarity = 0;
-      let similarTexts = [];
+      const scanResponse = await axios.post(
+        'https://api.copyleaks.com/v3/education/scan',
+        { base64: Buffer.from(sceneContent).toString('base64') },
+        { headers: { Authorization: `Bearer ${access_token}` } }
+      );
 
-      for (const chunk of chunks) {
-        for (const sampleText of sampleTexts) {
-          const similarity = calculateSimilarity(chunk, sampleText);
-          if (similarity > 30) { // Threshold for similarity
-            maxSimilarity = Math.max(maxSimilarity, similarity);
-            similarTexts.push({
-              text: sampleText,
-              similarity: similarity.toFixed(2)
-            });
-          }
-        }
-      }
+      const scanId = scanResponse.data.scannedDocumentId;
+      const result = await pollForResults(scanId, access_token);
 
-      // Remove duplicates and sort by similarity
-      similarTexts = Array.from(new Set(similarTexts.map(JSON.stringify)))
-        .map(JSON.parse)
-        .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, 5); // Keep top 5 matches
-
-      return {
-        percentagePlagiarized: maxSimilarity.toFixed(2),
-        sources: similarTexts.map(item => ({
-          text: item.text,
-          similarity: item.similarity
-        })),
-        text: sceneContent
-      };
+      setPlagiarismResults(result);
     } catch (error) {
       console.error('Plagiarism check error:', error);
-      return {
-        percentagePlagiarized: 0,
-        sources: [],
-        text: sceneContent,
-        error: 'Failed to check plagiarism'
-      };
     } finally {
       setIsPlagiarismChecking(false);
     }
   };
 
-  // Function to handle plagiarism check button click
+  // Add this function to handle the plagiarism check button click
   const handlePlagiarismCheck = async () => {
     if (!editorRef.current) return;
-
-    const content = editorRef.current.getContent({ format: 'text' });
-    const scenes = splitIntoScenes(content);
     
-    if (scenes.length === 0) {
-      alert('No content to check for plagiarism');
+    const content = editorRef.current.getContent({ format: 'text' });
+    if (!content.trim()) {
+      alert('Please enter some content to check for plagiarism');
       return;
     }
 
-    // Check the first scene or the next unchecked scene
-    const sceneToCheck = currentScene === null ? 0 : currentScene + 1;
-    if (sceneToCheck >= scenes.length) {
-      alert('All scenes have been checked for plagiarism');
-      return;
-    }
-
-    const result = await checkPlagiarism(scenes[sceneToCheck]);
-    setPlagiarismResults(prev => ({
-      ...prev,
-      [sceneToCheck]: result
-    }));
-    setCurrentScene(sceneToCheck);
+    await checkPlagiarism(content);
   };
 
   return (
@@ -454,11 +418,21 @@ const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document
               isPlagiarismChecking
                 ? "text-blue-700 bg-blue-100 border-blue-300"
                 : "text-gray-700 bg-white border-gray-300"
-            } border rounded-md hover:bg-gray-50`}
+            } border rounded-md hover:bg-gray-50 transition-colors duration-200`}
             disabled={isPlagiarismChecking}
           >
             <ShieldCheckIcon className="w-5 h-5 mr-2" />
-            Check Plagiarism
+            {isPlagiarismChecking ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Checking...
+              </span>
+            ) : (
+              "Check Plagiarism"
+            )}
           </button>
 
           <button
@@ -515,26 +489,102 @@ const LikhAIEditor = ({ onSave, onTitleChange, initialTitle = "Untitled Document
       {/* Plagiarism Results Modal */}
       {plagiarismResults && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Plagiarism Check Results</h2>
+          <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center space-x-3">
+                <ShieldCheckIcon className="w-6 h-6 text-indigo-600" />
+                <h2 className="text-2xl font-semibold text-gray-900">Plagiarism Check Results</h2>
+              </div>
               <button
                 onClick={() => setPlagiarismResults(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
               >
-                ×
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-            <div className="space-y-4">
-              {plagiarismResults.map((result, index) => (
-                <div key={index} className="border rounded p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <ExclamationIcon className="w-5 h-5 text-yellow-500" />
-                    <span className="font-medium">
-                      {result.similarity}% match with Scene {result.sceneNumber}
-                    </span>
+
+            <div className="space-y-6">
+              {Object.entries(plagiarismResults).map(([sceneIndex, result]) => (
+                <div key={sceneIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Scene {parseInt(sceneIndex) + 1}
+                    </h3>
                   </div>
-                  <p className="text-gray-600 text-sm">{result.details}</p>
+                  
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium text-gray-600">Plagiarism Score:</span>
+                        <span className={`text-lg font-bold ${
+                          result.plagiarismScore > 30 
+                            ? "text-red-600" 
+                            : result.plagiarismScore > 15 
+                              ? "text-yellow-600" 
+                              : "text-green-600"
+                        }`}>
+                          {result.plagiarismScore}%
+                        </span>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        result.plagiarismScore > 30 
+                          ? "bg-red-100 text-red-800" 
+                          : result.plagiarismScore > 15 
+                            ? "bg-yellow-100 text-yellow-800" 
+                            : "bg-green-100 text-green-800"
+                      }`}>
+                        {result.plagiarismScore > 30 
+                          ? "High Risk" 
+                          : result.plagiarismScore > 15 
+                            ? "Medium Risk" 
+                            : "Low Risk"}
+                      </div>
+                    </div>
+
+                    {result.matchedSources?.length > 0 ? (
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium text-gray-700">Matched Sources:</h4>
+                        {result.matchedSources.map((source, idx) => (
+                          <div key={idx} className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1">
+                                <a 
+                                  href={source.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline text-sm font-medium"
+                                >
+                                  {source.title || source.url}
+                                </a>
+                              </div>
+                              <span className="ml-4 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                {source.matchPercentage}% match
+                              </span>
+                            </div>
+                            {source.matchedText && (
+                              <div className="mt-2">
+                                <p className="text-xs text-gray-500 mb-1">Matched text:</p>
+                                <p className="text-sm text-gray-700 bg-white p-2 rounded border border-gray-200">
+                                  "{source.matchedText}"
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center py-4">
+                        <div className="flex items-center space-x-2 text-green-600">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="font-medium">No plagiarism detected in this scene!</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
